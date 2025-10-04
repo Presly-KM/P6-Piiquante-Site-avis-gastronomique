@@ -7,12 +7,9 @@ const app = express();
 app.use(express.json());
 
 // Connexion à MongoDB (nous utiliserons une variable d'environnement plus tard)
-mongoose.connect('mongodb://localhost:27017/hottakes', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect('mongodb://localhost:27017/hottakes')
 .then(() => console.log('✅ Connexion à MongoDB réussie !'))
-.catch(() => console.log('❌ Connexion à MongoDB échouée !'));
+.catch((error) => console.log('❌ Connexion à MongoDB échouée :', error));
 
 // Middleware pour les headers CORS
 app.use((req, res, next) => {
