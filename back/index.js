@@ -2,8 +2,11 @@ const express = require('express');
 const app = express();
 
 const PORT = 3000;
-app.get("/", function (req, res) {
-  res.send("Hello World!");
-});
+
+function sayHi(req, res) {
+    res.send("Hello World!");
+}
+
+app.get("/", sayHi);
 
 app.listen(PORT);
