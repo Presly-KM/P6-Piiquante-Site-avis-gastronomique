@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 
@@ -7,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 // Connexion à MongoDB (nous utiliserons une variable d'environnement plus tard)
-mongoose.connect('mongodb://localhost:27017/hottakes')
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ Connexion à MongoDB réussie !'))
 .catch((error) => console.log('❌ Connexion à MongoDB échouée :', error));
 
