@@ -10,8 +10,8 @@ app.use(express.json());
 
 // Connexion à MongoDB (nous utiliserons une variable d'environnement plus tard)
 mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('✅ Connexion à MongoDB réussie !'))
-.catch((error) => console.log('❌ Connexion à MongoDB échouée :', error));
+.then(() => console.log('✅ Connexion à MongoDB Atlas réussie !'))
+.catch((error) => console.log('❌ Connexion à MongoDB Atlas échouée :', error));
 
 // Middleware pour les headers CORS
 app.use((req, res, next) => {
