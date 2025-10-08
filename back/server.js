@@ -20,5 +20,8 @@ app.listen(PORT, function() {
 
 function signUp(req, res) {
     const body = req.body;                            // Ici on récupère le corps de la requête c'est-à-dire les données envoyées par le client. Par exemple, dans une requête POST, le corps peut contenir des informations telles que le nom d'utilisateur, le mot de passe, etc. Express ne parviendra pas a lire le corps de la requête (ex: undefined) sans un middleware comme body-parser ou express.json().
-    console.log("body:", body);                       // On affiche le corps de la requête dans la console pour le débogage.
+    console.log("body:", body);                       // On affiche le corps de la requête dans la console pour le débogage.    
+    res.status(201).json({                            // On envoie une réponse JSON au client avec un statut HTTP 201 (Created).
+        message: "Inscription réussie !" 
+    });
 }
