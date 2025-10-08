@@ -1,8 +1,10 @@
-const { sign } = require('crypto');
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 const PORT = 3000;
+
+app.use(cors());
 
 function sayHi(req, res) {
     res.send("Hello World!");
