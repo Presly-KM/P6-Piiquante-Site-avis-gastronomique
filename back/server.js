@@ -1,3 +1,4 @@
+const { sign } = require('crypto');
 const express = require('express');
 const app = express();
 
@@ -8,7 +9,12 @@ function sayHi(req, res) {
 }
 
 app.get("/", sayHi);
+app.post("/api/auth/signup", signUp)
 
 app.listen(PORT, function() {
     console.log(`Server is running on port:${PORT}`);
 });
+
+function signUp(req, res) {
+    console.log("req:", req);
+}
