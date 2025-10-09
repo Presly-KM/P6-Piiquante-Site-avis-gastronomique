@@ -31,7 +31,11 @@ function login(req, res) {
     const body = req.body;
     console.log("body:", body);
     if (body.email !== "president@piiquante.com") {
-        res.status(401).send("Mauvais email");
+        res.status(401).send("Mauvais identifiants");
+        return;
+    }
+    if (body.password !== "president") {
+        res.status(401).send("Mauvais identifiants");
         return;
     }
 // SIMULATION - À remplacer plus tard par la vraie logique
