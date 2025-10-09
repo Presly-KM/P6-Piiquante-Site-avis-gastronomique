@@ -30,7 +30,9 @@ function signUp(req, res) {
 function login(req, res) {
     const body = req.body;
     console.log("body:", body);
+// SIMULATION - À remplacer plus tard par la vraie logique
     res.status(200).json({
-        message: "Connexion réussie !"
+        userId: "dummyUser123",
+        token: "dummyToken456"
     });
 }
