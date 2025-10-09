@@ -30,6 +30,9 @@ function signUp(req, res) {
 function login(req, res) {
     const body = req.body;
     console.log("body:", body);
+    if (body.email !== "president@piiquante.com") {
+        res.status(401).send("Mauvais email");
+    }
 // SIMULATION - À remplacer plus tard par la vraie logique
     res.status(200).json({
         userId: "dummyUser123",
