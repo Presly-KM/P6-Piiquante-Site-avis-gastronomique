@@ -26,6 +26,13 @@ function signUp(req, res) {
     console.log("body:", body);                       // On affiche le corps de la requête dans la console pour le débogageconst email = req.body.email;                     // On extrait l'email du corps de la requête.
     const email = req.body.email;                     // On extrait l'email du corps de la requête.
     const password = req.body.password;               // On extrait le mot de passe du corps de la requête.
+    
+    const userInDb = users.find((user) => user.email === email); // On vérifie si un utilisateur avec le même email existe déjà dans le tableau des utilisateurs.
+    console.log("userInDb:", userInDb);           // On affiche l'utilisateur trouvé dans la console pour le débogage.
+    if (userInDb != null) {
+        res.status(400).send("Utilisateur déjà existant avec cet email."); // Si un utilisateur avec le même email existe déjà, on renvoie une erreur 400 (Bad Request) au client.
+        return;                                                           // On arrête l'exécution de la fonction.
+    }
     const user = { 
         email: email, 
         password: password                            // On crée un objet utilisateur avec l'email et le mot de passe.
