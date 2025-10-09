@@ -13,6 +13,7 @@ function sayHi(req, res) {
 
 app.get("/", sayHi);
 app.post("/api/auth/signup", signUp)
+app.post("/api/auth/login", login);
 
 app.listen(PORT, function() {
     console.log(`Server is running on port:${PORT}`);
@@ -23,5 +24,13 @@ function signUp(req, res) {
     console.log("body:", body);                       // On affiche le corps de la requête dans la console pour le débogage.    
     res.status(201).json({                            // On envoie une réponse JSON au client avec un statut HTTP 201 (Created).
         message: "Inscription réussie !" 
+    });
+}
+
+function login(req, res) {
+    const body = req.body;
+    console.log("body:", body);
+    res.status(200).json({
+        message: "Connexion réussie !"
     });
 }
