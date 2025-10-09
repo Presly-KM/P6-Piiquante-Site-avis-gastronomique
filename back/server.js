@@ -32,6 +32,7 @@ function login(req, res) {
     console.log("body:", body);
     if (body.email !== "president@piiquante.com") {
         res.status(401).send("Mauvais email");
+        return;
     }
 // SIMULATION - À remplacer plus tard par la vraie logique
     res.status(200).json({
