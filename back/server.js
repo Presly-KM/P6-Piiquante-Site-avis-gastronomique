@@ -1,5 +1,8 @@
+require("./db/mongo");        // On importe le fichier mongo.js pour initialiser la connexion à la base de données.
+
 const express = require('express');
 const app = express();
+
 const cors = require('cors');
 
 const PORT = 3000;
