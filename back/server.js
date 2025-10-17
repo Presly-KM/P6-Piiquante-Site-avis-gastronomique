@@ -20,13 +20,16 @@ app.listen(PORT, function() {
     console.log(`Server is running on port:${PORT}`);
 });
 
-const users = []; // Ceci est un tableau en mémoire pour stocker les utilisateurs. Dans une vraie application, vous utiliseriez une base de données.
+
 
 async function signUp(req, res) {
     const email = req.body.email;                     // On extrait l'email du corps de la requête.
     const password = req.body.password;               // On extrait le mot de passe du corps de la requête.
     
-    const userInDb = users.find((user) => user.email === email); // On vérifie si un utilisateur avec le même email existe déjà dans le tableau des utilisateurs.
+    const userInDb = await User.findOne({
+        email: email
+    });
+    console.log("userInDb:", userInDb);
     if (userInDb != null) {
         res.status(400).send("Utilisateur déjà existant avec cet email."); // Si un utilisateur avec le même email existe déjà, on renvoie une erreur 400 (Bad Request) au client.
         return;                                                            // On arrête l'exécution de la fonction.
@@ -36,7 +39,7 @@ async function signUp(req, res) {
         password: password                                                
      };
     try {
-    await User.create(user)                                               // On crée un nouvel utilisateur dans la base de données MongoDB. 
+      await User.create(user);                                             // On crée un nouvel utilisateur dans la base de données MongoDB. 
     } catch (e) {                                                         // Si une erreur survient lors de la création de l'utilisateur dans la base de données, on la capture.
         console.error(e);
         res.status(500).send("Erreur serveur lors de la création de l'utilisateur.");
