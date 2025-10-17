@@ -50,12 +50,13 @@ async function signUp(req, res) {
     });
 }
 
-function login(req, res) {
+async function login(req, res) {
     const body = req.body;
-    console.log("body:", body);
-    console.log("users in db:", users);
 
-    const userInDb = users.find((user) => user.email === body.email);
+    const userInDb = await User.findOne({                     // Ici, on cherche dans la base de données un utilisateur avec l'email que l'on a reçu dans le corps de la requête c'est à dire l'email qui a été tapé dans le formulaire de login.
+        email: body.email
+    });
+    console.log("userInDb:", userInDb);
     if (userInDb == null) {
         res.status(401).send("Mauvais email");
         return;
@@ -68,7 +69,7 @@ function login(req, res) {
 
 // SIMULATION - À remplacer plus tard par la vraie logique
     res.status(200).json({
-        userId: "dummyUser123",
+        userId: userInDb._id,
         token: "dummyToken456"
     });
 }
