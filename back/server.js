@@ -1,8 +1,6 @@
-require("./db/mongo");        // On importe le fichier mongo.js pour initialiser la connexion à la base de données.
-
 const express = require('express');
 const app = express();
-
+const { User } = require("./db/mongo");            // Importer le modèle User depuis le fichier mongo.js
 const cors = require('cors');
 
 const PORT = 3000;
@@ -24,23 +22,27 @@ app.listen(PORT, function() {
 
 const users = []; // Ceci est un tableau en mémoire pour stocker les utilisateurs. Dans une vraie application, vous utiliseriez une base de données.
 
-function signUp(req, res) {
-    const body = req.body;                            // Ici on récupère le corps de la requête c'est-à-dire les données envoyées par le client. Par exemple, dans une requête POST, le corps peut contenir des informations telles que le nom d'utilisateur, le mot de passe, etc. Express ne parviendra pas a lire le corps de la requête (ex: undefined) sans un middleware comme body-parser ou express.json().
+async function signUp(req, res) {
     const email = req.body.email;                     // On extrait l'email du corps de la requête.
     const password = req.body.password;               // On extrait le mot de passe du corps de la requête.
     
     const userInDb = users.find((user) => user.email === email); // On vérifie si un utilisateur avec le même email existe déjà dans le tableau des utilisateurs.
     if (userInDb != null) {
         res.status(400).send("Utilisateur déjà existant avec cet email."); // Si un utilisateur avec le même email existe déjà, on renvoie une erreur 400 (Bad Request) au client.
-        return;                                                           // On arrête l'exécution de la fonction.
+        return;                                                            // On arrête l'exécution de la fonction.
     }
-    const user = { 
+    const user = {                                                         // On crée un nouvel objet utilisateur avec l'email et le mot de passe fournis.
         email: email, 
-        password: password                            // On crée un objet utilisateur avec l'email et le mot de passe.
+        password: password                                                
      };
-    users.push(user);                                 // On ajoute l'utilisateur au tableau des utilisateurs.  
-    console.log("users:", users);                     // On affiche le tableau des utilisateurs dans la console pour le débogage.
-    res.status(201).json({                            // On envoie une réponse JSON au client avec un statut HTTP 201 (Created).
+    try {
+    await User.create(user)                                               // On crée un nouvel utilisateur dans la base de données MongoDB. 
+    } catch (e) {                                                         // Si une erreur survient lors de la création de l'utilisateur dans la base de données, on la capture.
+        console.error(e);
+        res.status(500).send("Erreur serveur lors de la création de l'utilisateur.");
+        return;
+    }
+    res.status(201).json({                                               // On renvoie une réponse 201 (Created) au client avec un message de succès.
         message: "Inscription réussie !" 
     });
 }
