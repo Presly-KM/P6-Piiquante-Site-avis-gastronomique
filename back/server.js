@@ -30,7 +30,6 @@ async function signUp(req, res) {
     const userInDb = await User.findOne({
         email: email
     });
-    console.log("userInDb:", userInDb);
     if (userInDb != null) {
         res.status(400).send("Utilisateur déjà existant avec cet email."); // Si un utilisateur avec le même email existe déjà, on renvoie une erreur 400 (Bad Request) au client.
         return;                                                            // On arrête l'exécution de la fonction.
@@ -57,14 +56,13 @@ async function login(req, res) {
     const userInDb = await User.findOne({                     // Ici, on cherche dans la base de données un utilisateur avec l'email que l'on a reçu dans le corps de la requête c'est à dire l'email qui a été tapé dans le formulaire de login.
         email: body.email
     });
-    console.log("userInDb:", userInDb);
     if (userInDb == null) {
         res.status(401).send("Mauvais email");
         return;
     }
     const passwordInDb = userInDb.password;
-    if (isPasswordCorrect(req.body.password, passwordInDb)) {    // On vérifie si le mot de passe fourni entré par l'utilisateur  dans le champ de saisie (req.body.password) correspond au mot de passe stocké dans la base de données et qui est hashé (passwordInDb).
-        res.status(401).send("Mauvais mot de passe temporaire");
+    if (!isPasswordCorrect(req.body.password, passwordInDb)) {    // (!isPasswordCorrect = si le mot de passe ne correspond pas) -> Si le mot de passe entré par l'utilisateur dans le champ de saisie (req.body.password) correspond au mot de passe stocké dans la base de données et qui est hashé (passwordInDb).
+        res.status(401).send("Mauvais mot de passe");  // Si le mot de passe ne correspond pas, on renvoie une erreur 401 (Unauthorized) au client.
         return;
     }
 
@@ -76,10 +74,8 @@ async function login(req, res) {
 }
 
 function hashPassword(password) {
-    console.log("password:", password);
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    console.log("hash:", hash);
     return hash;
 }
 
