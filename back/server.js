@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const { User } = require("./db/mongo");            // Importer le modèle User depuis le fichier mongo.js
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 
 const PORT = 3000;
 
@@ -36,7 +37,7 @@ async function signUp(req, res) {
     }
     const user = {                                                         // On crée un nouvel objet utilisateur avec l'email et le mot de passe fournis.
         email: email, 
-        password: password                                                
+        password: hashPassword(password)                                                
      };
     try {
       await User.create(user);                                             // On crée un nouvel utilisateur dans la base de données MongoDB. 
@@ -62,7 +63,7 @@ async function login(req, res) {
         return;
     }
     const passwordInDb = userInDb.password;
-    if (passwordInDb !== body.password) {
+    if (isPasswordCorrect(req.body.password, passwordInDb)) {    // On vérifie si le mot de passe fourni entré par l'utilisateur  dans le champ de saisie (req.body.password) correspond au mot de passe stocké dans la base de données et qui est hashé (passwordInDb).
         res.status(401).send("Mauvais mot de passe temporaire");
         return;
     }
@@ -72,4 +73,16 @@ async function login(req, res) {
         userId: userInDb._id,
         token: "dummyToken456"
     });
+}
+
+function hashPassword(password) {
+    console.log("password:", password);
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    console.log("hash:", hash);
+    return hash;
+}
+
+function isPasswordCorrect(password, hash) {                    // Ici, on compare le mot de passe fourni avec le mot de passe hashé stocké dans la base de données. 
+    return bcrypt.compareSync(password, hash);
 }
