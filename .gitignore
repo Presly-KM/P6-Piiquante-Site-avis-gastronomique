@@ -15,6 +15,9 @@ yarn-error.log
 # testing server
 requests.http
 
+# environment files
+.env
+
 # IDEs and editors
 .idea/
 .project
