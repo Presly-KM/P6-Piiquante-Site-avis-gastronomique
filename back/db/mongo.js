@@ -1,8 +1,7 @@
+require('dotenv').config();                           // Charger les variables d'environnement depuis le fichier .env
 const mongoose = require('mongoose');
 
-const PASSWORD = "2BaOgCyV0fWACJkX";
-const USER = "preslykombam_db_user";
-const DB_URL = `mongodb+srv://${USER}:${PASSWORD}@cluster0.pxecn1e.mongodb.net/hottakes?retryWrites=true&w=majority&appName=Cluster0`
+const DB_URL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_DOMAIN}`; // Mise en place de l'url pour mongo. "Process.env" vient activer les données mises dans le fichier ".env" et qu'on souhaite ne pas afficher aux yeux du public (à savoir le nom d'utilisateur, le mot de passe et le domaine)
 console.log("DB_URL:", DB_URL);
 
 async function connect() {
@@ -15,4 +14,11 @@ async function connect() {
 }
 connect();
 
-module.exports = {};
+const UserSchema = new mongoose.Schema({
+    email: String,
+    password: String
+});
+
+const User = mongoose.model("User", UserSchema);
+
+module.exports = { User };
