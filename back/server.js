@@ -3,11 +3,27 @@ const app = express();
 const { User } = require("./db/mongo");            // Importer le modèle User depuis le fichier mongo.js
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const { sauces } = require("./db/sauces");
+const multer = require('multer');                  // Importation du middleware multer pour destiné à gérer fichiers entrants (images)
+
+const storage = multer.diskStorage({                // Configuration du stockage des fichiers uploadés (cf modele sur le site de multer)
+    destination: function (req, file, cb) {
+        cb(null, 'uploads');                       // Dossier de destination
+    },
+    filename: function (req, file, cb) {
+        const fileName = file.originalname.toLowerCase().split(' ').join('-'); // Nom du fichier en minuscule et sans espaces
+        cb(null, Date.now() + '-' + fileName); // Nom du fichier
+    }
+});
+const upload = multer({                            // Initialisation de multer avec la configuration de stockage définie ci-dessus
+    storage: storage
+});
 
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());      // Middleware pour parser le corps des requêtes en JSON
+
 
 function sayHi(req, res) {
     res.send("Hello World!");
@@ -17,12 +33,18 @@ app.get("/", sayHi);
 app.post("/api/auth/signup", signUp)
 app.post("/api/auth/login", login);
 app.get("/api/sauces", getSauces);
+app.post("/api/sauces", upload.single("image"), postSauces);
 
+function postSauces(req, res) {
+    const sauce = req.body;
+    console.log("Sauce reçue :", sauce);
+}
 
+function getSauces(req, res) {
+    res.send(sauces);
+}
 
-function getSauces(req, res) {}
-
-app.listen(PORT, function() {
+app.listen(PORT, function () {
     console.log(`Server is running on port:${PORT}`);
 });
 
@@ -31,7 +53,7 @@ app.listen(PORT, function() {
 async function signUp(req, res) {
     const email = req.body.email;                     // On extrait l'email du corps de la requête.
     const password = req.body.password;               // On extrait le mot de passe du corps de la requête.
-    
+
     const userInDb = await User.findOne({
         email: email
     });
@@ -40,18 +62,18 @@ async function signUp(req, res) {
         return;                                                            // On arrête l'exécution de la fonction.
     }
     const user = {                                                         // On crée un nouvel objet utilisateur avec l'email et le mot de passe fournis.
-        email: email, 
-        password: hashPassword(password)                                                
-     };
+        email: email,
+        password: hashPassword(password)
+    };
     try {
-      await User.create(user);                                             // On crée un nouvel utilisateur dans la base de données MongoDB. 
+        await User.create(user);                                             // On crée un nouvel utilisateur dans la base de données MongoDB. 
     } catch (e) {                                                         // Si une erreur survient lors de la création de l'utilisateur dans la base de données, on la capture.
         console.error(e);
         res.status(500).send("Erreur serveur lors de la création de l'utilisateur.");
         return;
     }
     res.status(201).json({                                               // On renvoie une réponse 201 (Created) au client avec un message de succès.
-        message: "Inscription réussie !" 
+        message: "Inscription réussie !"
     });
 }
 
@@ -71,7 +93,7 @@ async function login(req, res) {
         return;
     }
 
-// SIMULATION - À remplacer plus tard par la vraie logique
+    // SIMULATION - À remplacer plus tard par la vraie logique
     res.status(200).json({
         userId: userInDb._id,
         token: "dummyToken456"
