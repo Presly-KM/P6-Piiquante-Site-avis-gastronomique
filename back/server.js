@@ -16,6 +16,11 @@ function sayHi(req, res) {
 app.get("/", sayHi);
 app.post("/api/auth/signup", signUp)
 app.post("/api/auth/login", login);
+app.get("/api/sauces", getSauces);
+
+
+
+function getSauces(req, res) {}
 
 app.listen(PORT, function() {
     console.log(`Server is running on port:${PORT}`);
@@ -62,7 +67,7 @@ async function login(req, res) {
     }
     const passwordInDb = userInDb.password;
     if (!isPasswordCorrect(req.body.password, passwordInDb)) {    // (!isPasswordCorrect = si le mot de passe ne correspond pas) -> Si le mot de passe entré par l'utilisateur dans le champ de saisie (req.body.password) correspond au mot de passe stocké dans la base de données et qui est hashé (passwordInDb).
-        res.status(401).send("Mauvais mot de passe");  // Si le mot de passe ne correspond pas, on renvoie une erreur 401 (Unauthorized) au client.
+        res.status(401).send("Mauvais mot de passe");             // Si le mot de passe ne correspond pas, on renvoie une erreur 401 (Unauthorized) au client.
         return;
     }
 
