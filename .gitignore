@@ -14,6 +14,7 @@ yarn-error.log
 
 # testing server
 requests.http
+uploads/
 
 # environment files
 .env
