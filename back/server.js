@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { User } = require("./db/mongo");            // Importer le modèle User depuis le fichier mongo.js
+const { User, Sauce } = require("./db/mongo");            // Importer le modèle User depuis le fichier mongo.js
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const { sauces } = require("./db/sauces");
@@ -23,7 +23,7 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());      // Middleware pour parser le corps des requêtes en JSON
-
+app.use('/images', express.static('uploads')); // Middleware pour servir les fichiers statiques du dossier 'uploads'
 
 function sayHi(req, res) {
     res.send("Hello World!");
@@ -33,13 +33,22 @@ app.get("/", sayHi);
 app.post("/api/auth/signup", signUp)
 app.post("/api/auth/login", login);
 app.get("/api/sauces", getSauces);
-app.post("/api/sauces", upload.single("image"), postSauces);
+app.post("/api/sauces", upload.single("image"), postSauces);    // Utilisation de multer pour gérer l'upload d'une seule image avec le champ 'image' du formulaire. "single" signifie qu'on attend un seul fichier (et non plusieurs).
 
-function postSauces(req, res) {
-    const sauce = req.body;
-    console.log("Sauce reçue :", sauce);
+async function postSauces(req, res) {
+    const file = req.file;                                      // Récupération du fichier image uploadé. En utilisant 'upload.single("image")', multer traite le fichier envoyé dans le champ 'image' du formulaire multipart/form-data et le rend accessible via 'req.file'.
+    console.log("file:", file);
+    const stringifiedSauce = req.body.sauce;                    // Récupération de la chaîne JSON de la sauce depuis le champ 'sauce' du formulaire. On récupère la chaîne JSON de la sauce envoyée dans le champ 'sauce' du formulaire multipart/form-data.
+    const sauce = JSON.parse(stringifiedSauce);                 // Conversion de la chaîne JSON en objet JavaScript ce qui nous permet d'accéder aux propriétés de la sauce (name, manufacturer, title etc) et de les manipuler plus facilement. Grace à Parse, il ne s'agit plus d'une simple chaîne de caractères.
+    sauce.imageUrl = file.path;                                 // Ajout de l'URL de l'image à l'objet sauce. Cela permet de stocker le chemin de l'image uploadée dans la propriété 'imageUrl' de l'objet sauce.
+    try {
+        const result = await Sauce.create(sauce);
+        res.send({ message: "Sauce ajoutée avec succès !", sauce: result });
+    } catch (e) {
+        console.error(e);
+        res.status(500).send("Erreur serveur lors de l'ajout de la sauce: " + e.message);
+    }
 }
-
 function getSauces(req, res) {
     res.send(sauces);
 }
