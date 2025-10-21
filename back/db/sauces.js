@@ -1,6 +1,5 @@
 const sauces = [
     {
-        _id: "sauce001", // ← Ajout manuel pour les tests
         userId: "userId123",
         name: "Sauce tomate",
         manufacturer: "Presly's Sauces",
