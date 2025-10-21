@@ -5,12 +5,12 @@ const DB_URL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@
 console.log("DB_URL:", DB_URL);
 
 async function connect() {
- try {
-  await mongoose.connect(DB_URL);
-  console.log("Connected to Database");
- } catch (e) {
-  console.error(e);
- }
+    try {
+        await mongoose.connect(DB_URL);
+        console.log("Connected to Database");
+    } catch (e) {
+        console.error(e);
+    }
 }
 connect();
 
@@ -21,4 +21,19 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
-module.exports = { User };
+const SauceSchema = new mongoose.Schema({
+    userId: String,
+    name: String,
+    manufacturer: String,
+    description: String,
+    mainPepper: String,
+    imageUrl: String,
+    heat: Number,
+    likes: Number,
+    dislikes: Number,
+    usersLiked: [String],
+    usersDisliked: [String]
+});
+const Sauce = mongoose.model("Sauce", SauceSchema);
+
+module.exports = { User, Sauce };
