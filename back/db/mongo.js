@@ -14,26 +14,4 @@ async function connect() {
 }
 connect();
 
-const UserSchema = new mongoose.Schema({
-    email: String,
-    password: String
-});
-
-const User = mongoose.model("User", UserSchema);
-
-const SauceSchema = new mongoose.Schema({
-    userId: String,
-    name: String,
-    manufacturer: String,
-    description: String,
-    mainPepper: String,
-    imageUrl: String,
-    heat: Number,
-    likes: Number,
-    dislikes: Number,
-    usersLiked: [String],
-    usersDisliked: [String]
-});
-const Sauce = mongoose.model("Sauce", SauceSchema);
-
-module.exports = { User, Sauce };
+module.exports = { mongoose };
