@@ -7,11 +7,11 @@ console.log("DB_URL:", DB_URL);
 async function connect() {
     try {
         await mongoose.connect(DB_URL);
-        console.log("Connected to Database");
+        console.log("🟢 Connecté à MongoDB !");
     } catch (e) {
         console.error(e);
     }
 }
 connect();
 
-module.exports = { mongoose };
+
