@@ -1,8 +1,7 @@
-const { Sauce } = require("../models/Sauce");         // Importation du modèle Sauce pour interagir avec la collection des sauces dans la base de données MongoDB.
-const { sauces } = require("../db/sauces");           // Importation des sauces depuis la base de données simulée (fichier sauces.js).
-
-const express = require("express");
 const { upload } = require("../middlewares/multer");
+const { Sauce } = require("../models/Sauce");         // Importation du modèle Sauce pour interagir avec la collection des sauces dans la base de données MongoDB.
+const express = require("express");
+
 
 async function postSauces(req, res) {
     const file = req.file;                                      // Récupération du fichier image uploadé. En utilisant 'upload.single("image")', multer traite le fichier envoyé dans le champ 'image' du formulaire multipart/form-data et le rend accessible via 'req.file'.
@@ -17,7 +16,10 @@ async function postSauces(req, res) {
         res.status(500).send("Erreur serveur lors de l'ajout de la sauce: " + e.message);
     }
 }
-function getSauces(req, res) {
+
+async function getSauces(req, res) {
+    const sauces = await Sauce.find();
+    console.log("sauces:", sauces);
     res.send(sauces);
 }
 
