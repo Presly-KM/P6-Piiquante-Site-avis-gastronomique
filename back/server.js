@@ -11,5 +11,5 @@ app.use("/api/auth", usersRouter);
 app.use("/api/sauces", saucesRouter);
 
 app.listen(PORT, function () {
-    console.log(`Server is running on port:${PORT}`);
+    console.log(`🟢 Serveur de Piiquante en écoute sur le port:${PORT}`);
 });
