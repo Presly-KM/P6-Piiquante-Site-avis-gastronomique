@@ -65,8 +65,8 @@ function isPasswordCorrect(password, hash) {                    // Ici, on compa
 
 const usersRouter = express.Router();
 
-usersRouter.post("signup", signUp);
-usersRouter.post("login", login);
+usersRouter.post("/signup", signUp);
+usersRouter.post("/login", login);
 
 
 module.exports = { usersRouter };
