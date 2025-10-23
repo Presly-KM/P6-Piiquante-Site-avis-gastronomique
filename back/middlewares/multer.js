@@ -2,7 +2,7 @@ const multer = require('multer');                  // Importation du middleware 
 
 const storage = multer.diskStorage({                // Configuration du stockage des fichiers uploadés (cf modele sur le site de multer)
     destination: function (req, file, cb) {
-        cb(null, 'uploads');                       // Dossier de destination
+        cb(null, 'images/');                       // Dossier de destination
     },
     filename: function (req, file, cb) {
         const fileName = file.originalname.toLowerCase().split(' ').join('-'); // Nom du fichier en minuscule et sans espaces
