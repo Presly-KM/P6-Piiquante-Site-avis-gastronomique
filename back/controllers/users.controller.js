@@ -1,6 +1,7 @@
 const { User } = require("../models/User");           // Importation du modèle User pour interagir avec la collection des utilisateurs dans la base de données MongoDB.
 const bcrypt = require("bcrypt");                     // Importation de la bibliothèque bcrypt pour le hachage des mots de passe.
 const express = require("express");
+const jwt = require("jsonwebtoken");                 // Importation de la bibliothèque jsonwebtoken pour la gestion des tokens JWT.
 
 
 async function signUp(req, res) {
@@ -32,6 +33,7 @@ async function signUp(req, res) {
 
 async function login(req, res) {
     const body = req.body;
+    console.log("body:", body);
 
     const userInDb = await User.findOne({                     // Ici, on cherche dans la base de données un utilisateur avec l'email que l'on a reçu dans le corps de la requête c'est à dire l'email qui a été tapé dans le formulaire de login.
         email: body.email
@@ -49,8 +51,18 @@ async function login(req, res) {
     // SIMULATION - À remplacer plus tard par la vraie logique
     res.status(200).json({
         userId: userInDb._id,
-        token: "dummyToken456"
+        token: generateToken(userInDb._id)
     });
+}
+
+function generateToken(idInDb) {                                  // Ici, on génère un token JWT en utilisant en paramètre l'ID de l'utilisateur stocké dans la base de données.
+    const payload = {
+        userId: idInDb
+    };
+    const token = jwt.sign(payload, "SYLABUS", {                  // Ici, on signe le token avec une clé secrète "SYLABUS" (à remplacer par une clé plus sécurisée en production) et on définit une durée de validité pour le token.
+        expiresIn: "1d"
+    });
+    return token;
 }
 
 function hashPassword(password) {
