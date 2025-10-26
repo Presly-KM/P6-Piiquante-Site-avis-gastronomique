@@ -1,7 +1,7 @@
 const { upload } = require("../middlewares/multer");
 const { Sauce } = require("../models/Sauce");         // Importation du modèle Sauce pour interagir avec la collection des sauces dans la base de données MongoDB.
 const express = require("express");
-
+const jwt = require("jsonwebtoken");                 // Importation de la bibliothèque jsonwebtoken pour la gestion des tokens JWT.
 
 async function postSauces(req, res) {
     const file = req.file;                                      // Récupération du fichier image uploadé. En utilisant 'upload.single("image")', multer traite le fichier envoyé dans le champ 'image' du formulaire multipart/form-data et le rend donc accessible à la fonction postSaucesvia 'req.file'.
@@ -33,8 +33,38 @@ function getAbsoluteImagePath(fileName) {
 }
 
 const saucesRouter = express.Router();
+saucesRouter.get("/:id", getSauceById);
 saucesRouter.get("/", getSauces);
-saucesRouter.post("/", upload.single("image"), postSauces);    // Utilisation de multer pour gérer l'upload d'une seule image avec le champ 'image' du formulaire. "single" signifie qu'on attend un seul fichier (et non plusieurs).
+saucesRouter.post("/", checkToken, upload.single("image"), postSauces);    // Utilisation de multer pour gérer l'upload d'une seule image avec le champ 'image' du formulaire. "single" signifie qu'on attend un seul fichier (et non plusieurs).
 
+function checkToken(req, res, next) {                                      // Middleware pour vérifier la validité du token JWT.
+    const headers = req.headers;
+    const authorization = headers.authorization;
+    if (!authorization == null) {
+        res.status(401).send("Non autorisé : token manquant");
+        return;
+    }
+    const token = authorization.split(" ")[1];                               // Extraction du token JWT de l'en-tête Authorization. Le format attendu est
+    try {
+        const tokenPayload = jwt.verify(token, process.env.JWT_SECRET);                             // Vérification de la validité du token JWT en utilisant la clé
+        console.log("tokenPayload:", tokenPayload);
+        next(); // Passe au middleware ou à la route suivante
+    } catch (e) {
+        console.error(e);
+        res.status(401).send("Non autorisé : token invalide");
+    }
+}
+
+async function getSauceById(req, res) {            // ATTENTION TEMPORAIRE AVANT CHECK DE SE QU'A FAIT BENJ (sans prévenir --')
+    id = req.params.id;
+    try {
+        const sauce = await Sauce.findById(id);
+        sauce.imageUrl = getAbsoluteImagePath(sauce.imageUrl);
+        res.send(sauce);
+    } catch (e) {
+        console.error(e);
+        res.status(500).send("Erreur serveur lors de la récupération de la sauce: " + e.message);
+    }
+}
 
 module.exports = { saucesRouter };
