@@ -12,11 +12,19 @@ saucesRouter.put("/:id", checkToken, upload.single("image"), putSauce); // Middl
 
 async function putSauce(req, res) {
     const id = req.params.id;
-    console.log("id:", id);
-    const file = req.file;
-    console.log("file:", file);
     const sauce = JSON.parse(req.body.sauce);
-    console.log("sauce:", sauce);
+
+    const sauceInDb = await Sauce.findById(id);
+    if (sauceInDb == null) {
+        res.status(404).send("Sauce non trouvée");
+        return;
+    }
+    const userIdInDb = sauceInDb.userId;
+    const userIdInToken = req.tokenPayload.userId;
+    if (userIdInDb !== userIdInToken) {
+        res.status(403).send("Action non autorisée : vous ne pouvez pas supprimer la sauce d'un autre utilisateur");
+        return;
+    }
 
     const newSauce = {}
     if (sauce.title) newSauce.title = sauce.title;
@@ -24,10 +32,9 @@ async function putSauce(req, res) {
     if (sauce.description) newSauce.description = sauce.description;
     if (sauce.mainPepper) newSauce.mainPepper = sauce.mainPepper;
     if (req.file != null) newSauce.imageUrl = req.file.filename;
-    console.log("newSauce:", newSauce);
 
-    const result = await Sauce.findByIdAndUpdate(id, newSauce);
-    console.log("result:", result);
+    await Sauce.findByIdAndUpdate(id, newSauce);
+    res.send("Sauce mise à jour avec succès");
 }
 
 async function deleteSauce(req, res) {
