@@ -15,8 +15,10 @@ saucesRouter.post(":id/like", checkToken, likeSauce);
 async function likeSauce(req, res) {
     const id = req.params.id;
     const like = req.body.like;
+    console.log("like:", like);
     const userId = req.tokenPayload.userId;             // Récupération de l'ID utilisateur depuis le token JWT. On ne fait pas confiance au client pour nous envoyer l'ID utilisateur dans le corps de la requête. Car un utilisateur malveillant pourrait essayer de liker une sauce en se faisant passer pour un autre utilisateur en envoyant un userId différent dans le corps de la requête.
     const sauce = await Sauce.findById(id);
+    console.log("sauce:", sauce);
     if (sauce == null) {
         res.status(404).send("Sauce non trouvée");
         return;
