@@ -9,7 +9,7 @@ saucesRouter.get("/", getSauces);
 saucesRouter.post("/", checkToken, upload.single("image"), postSauces);    // Utilisation de multer pour gérer l'upload d'une seule image avec le champ 'image' du formulaire. "single" signifie qu'on attend un seul fichier (et non plusieurs).
 saucesRouter.delete("/:id", checkToken, deleteSauce);
 saucesRouter.put("/:id", checkToken, upload.single("image"), putSauce); // Middleware pour vérifier le token JWT avant de permettre la mise à jour d'une sauce.
-saucesRouter.post(":id/like", checkToken, likeSauce);
+saucesRouter.post("/:id/like", checkToken, likeSauce);
 
 
 async function likeSauce(req, res) {
