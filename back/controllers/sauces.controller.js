@@ -13,38 +13,75 @@ saucesRouter.post("/:id/like", checkToken, likeSauce);
 
 
 async function likeSauce(req, res) {
-    const id = req.params.id;
-    const like = req.body.like;
-    console.log("like:", like);
-    const userId = req.tokenPayload.userId;             // Récupération de l'ID utilisateur depuis le token JWT. On ne fait pas confiance au client pour nous envoyer l'ID utilisateur dans le corps de la requête. Car un utilisateur malveillant pourrait essayer de liker une sauce en se faisant passer pour un autre utilisateur en envoyant un userId différent dans le corps de la requête.
-    const sauce = await Sauce.findById(id);
-    console.log("sauce:", sauce);
-    if (sauce == null) {
-        res.status(404).send("Sauce non trouvée");
-        return;
-    }
-    if (like === 1) {
-        if (!sauce.usersLiked.includes(userId)) {
+    try {
+        const id = req.params.id;
+        const { like, userId } = req.body;  // like: 1, 0 ou -1
+
+        console.log("🔍 Like request - Sauce:", id, "Like:", like, "User:", userId);
+
+        // Validation du like
+        if (![1, 0, -1].includes(like)) {
+            return res.status(400).json({ error: "La valeur 'like' doit être 1, 0 ou -1" });
+        }
+
+        const sauce = await Sauce.findById(id);
+        if (!sauce) {                                                // Si la sauce n'existe pas. Ici le ! signifie "non"
+            return res.status(404).json({ error: "Sauce non trouvée" });
+        }
+
+        // Vérification que l'userId est fourni
+        if (!userId) {
+            return res.status(400).json({ error: "UserId manquant" });
+        }
+
+        // Récupération depuis le token (plus sécurisé que le body)
+        const userIdFromToken = req.tokenPayload.userId;
+
+        // Vérification cohérence userId
+        if (userId !== userIdFromToken) {
+            return res.status(403).json({ error: "UserId incohérent" });
+        }
+
+        console.log("📊 Avant modification - Likes:", sauce.likes, "Dislikes:", sauce.dislikes);
+        console.log("👥 UsersLiked:", sauce.usersLiked, "UsersDisliked:", sauce.usersDisliked);
+
+        // Suppression des votes existants
+        const wasLiked = sauce.usersLiked.includes(userId);
+        const wasDisliked = sauce.usersDisliked.includes(userId);
+
+        if (wasLiked) {
+            sauce.usersLiked = sauce.usersLiked.filter(id => id !== userId);
+            sauce.likes = Math.max(0, sauce.likes - 1);
+        }
+        if (wasDisliked) {
+            sauce.usersDisliked = sauce.usersDisliked.filter(id => id !== userId);
+            sauce.dislikes = Math.max(0, sauce.dislikes - 1);
+        }
+
+        // Application du nouveau vote
+        if (like === 1) {
             sauce.usersLiked.push(userId);
             sauce.likes += 1;
-        }
-    } else if (like === -1) {
-        if (!sauce.usersDisliked.includes(userId)) {
+        } else if (like === -1) {
             sauce.usersDisliked.push(userId);
             sauce.dislikes += 1;
         }
-    } else if (like === 0) {
-        if (sauce.usersLiked.includes(userId)) {
-            sauce.usersLiked = sauce.usersLiked.filter(id => id !== userId);
-            sauce.likes -= 1;
-        }
-        if (sauce.usersDisliked.includes(userId)) {
-            sauce.usersDisliked = sauce.usersDisliked.filter(id => id !== userId);
-            sauce.dislikes -= 1;
-        }
+
+        console.log("📈 Après modification - Likes:", sauce.likes, "Dislikes:", sauce.dislikes);
+        console.log("👥 UsersLiked:", sauce.usersLiked, "UsersDisliked:", sauce.usersDisliked);
+
+        await sauce.save();
+
+        res.status(200).json({
+            message: "Like/dislike mis à jour avec succès",
+            likes: sauce.likes,
+            dislikes: sauce.dislikes
+        });
+
+    } catch (error) {
+        console.error("❌ Erreur likeSauce:", error);
+        res.status(500).json({ error: "Erreur serveur: " + error.message });
     }
-    await sauce.save();
-    res.send("Like/dislike mis à jour avec succès");
 }
 
 async function putSauce(req, res) {
