@@ -14,73 +14,103 @@ saucesRouter.post("/:id/like", checkToken, likeSauce);
 
 async function likeSauce(req, res) {
     try {
+        // 1. RÉCUPÉRATION DES DONNÉES
         const id = req.params.id;
-        const { like, userId } = req.body;  // like: 1, 0 ou -1
-
-        console.log("🔍 Like request - Sauce:", id, "Like:", like, "User:", userId);
-
-        // Validation du like
-        if (![1, 0, -1].includes(like)) {
-            return res.status(400).json({ error: "La valeur 'like' doit être 1, 0 ou -1" });
-        }
-
-        const sauce = await Sauce.findById(id);
-        if (!sauce) {                                                // Si la sauce n'existe pas. Ici le ! signifie "non"
-            return res.status(404).json({ error: "Sauce non trouvée" });
-        }
-
-        // Vérification que l'userId est fourni
-        if (!userId) {
-            return res.status(400).json({ error: "UserId manquant" });
-        }
-
-        // Récupération depuis le token (plus sécurisé que le body)
+        const { like, userId } = req.body;
         const userIdFromToken = req.tokenPayload.userId;
 
-        // Vérification cohérence userId
+        console.log("🔍 Like request - Sauce:", id, "Like:", like, "User from body:", userId, "User from token:", userIdFromToken);
+
+        // 2. VALIDATION DES DONNÉES
+        if (!id) {
+            return res.status(400).json({ error: "ID de sauce manquant" });
+        }
+
+        if (![1, 0, -1].includes(like)) {
+            return res.status(400).json({ error: "Valeur 'like' invalide. Doit être 1, 0 ou -1" });
+        }
+
+        if (!userId) {
+            return res.status(400).json({ error: "UserId manquant dans le body" });
+        }
+
+        // 3. VÉRIFICATION DE COHÉRENCE USERID
         if (userId !== userIdFromToken) {
-            return res.status(403).json({ error: "UserId incohérent" });
+            return res.status(403).json({ error: "UserId incohérent entre le body et le token" });
+        }
+
+        // 4. RÉCUPÉRATION DE LA SAUCE
+        const sauce = await Sauce.findById(id);
+        if (!sauce) {
+            return res.status(404).json({ error: "Sauce non trouvée" });
         }
 
         console.log("📊 Avant modification - Likes:", sauce.likes, "Dislikes:", sauce.dislikes);
         console.log("👥 UsersLiked:", sauce.usersLiked, "UsersDisliked:", sauce.usersDisliked);
 
-        // Suppression des votes existants
+        // 5. LOGIQUE METIER - GESTION DES VOTES
+        let message = "";
+
+        // ÉTAT ACTUEL
         const wasLiked = sauce.usersLiked.includes(userId);
         const wasDisliked = sauce.usersDisliked.includes(userId);
 
+        // RETIRER LES VOTES EXISTANTS (pour like = 0 ou changement de vote)
         if (wasLiked) {
             sauce.usersLiked = sauce.usersLiked.filter(id => id !== userId);
             sauce.likes = Math.max(0, sauce.likes - 1);
+            console.log("🔻 Like retiré");
         }
         if (wasDisliked) {
             sauce.usersDisliked = sauce.usersDisliked.filter(id => id !== userId);
             sauce.dislikes = Math.max(0, sauce.dislikes - 1);
+            console.log("🔻 Dislike retiré");
         }
 
-        // Application du nouveau vote
+        // APPLIQUER LE NOUVEAU VOTE
         if (like === 1) {
-            sauce.usersLiked.push(userId);
-            sauce.likes += 1;
+            if (!wasLiked) { // Éviter les doublons si déjà liké
+                sauce.usersLiked.push(userId);
+                sauce.likes += 1;
+                message = "Sauce likée avec succès";
+                console.log("👍 Nouveau like ajouté");
+            } else {
+                message = "Like déjà présent - retiré";
+            }
         } else if (like === -1) {
-            sauce.usersDisliked.push(userId);
-            sauce.dislikes += 1;
+            if (!wasDisliked) { // Éviter les doublons si déjà disliké
+                sauce.usersDisliked.push(userId);
+                sauce.dislikes += 1;
+                message = "Sauce dislikée avec succès";
+                console.log("👎 Nouveau dislike ajouté");
+            } else {
+                message = "Dislike déjà présent - retiré";
+            }
+        } else if (like === 0) {
+            message = "Vote retiré avec succès";
+            console.log("⚪ Vote annulé");
         }
 
+        // 6. SAUVEGARDE ET RÉPONSE
         console.log("📈 Après modification - Likes:", sauce.likes, "Dislikes:", sauce.dislikes);
         console.log("👥 UsersLiked:", sauce.usersLiked, "UsersDisliked:", sauce.usersDisliked);
 
         await sauce.save();
+        console.log("💾 Sauce sauvegardée en base");
 
         res.status(200).json({
-            message: "Like/dislike mis à jour avec succès",
+            message: message,
             likes: sauce.likes,
             dislikes: sauce.dislikes
         });
 
     } catch (error) {
-        console.error("❌ Erreur likeSauce:", error);
-        res.status(500).json({ error: "Erreur serveur: " + error.message });
+        console.error("❌ ERREUR CRITIQUE likeSauce:", error);
+        console.error("📋 Stack:", error.stack);
+        res.status(500).json({
+            error: "Erreur serveur lors du traitement du like/dislike",
+            details: error.message
+        });
     }
 }
 
