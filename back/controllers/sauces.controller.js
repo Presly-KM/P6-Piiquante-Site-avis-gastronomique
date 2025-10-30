@@ -115,30 +115,45 @@ async function likeSauce(req, res) {
 }
 
 async function putSauce(req, res) {
-    const id = req.params.id;
-    const sauce = JSON.parse(req.body.sauce);
+    try {
+        const id = req.params.id;
 
-    const sauceInDb = await Sauce.findById(id);
-    if (sauceInDb == null) {
-        res.status(404).send("Sauce non trouvée");
-        return;
+        // ✅ GESTION DES DEUX CAS : avec et sans image
+        let sauceData;
+        if (req.body.sauce) {
+            sauceData = JSON.parse(req.body.sauce);  // Cas avec image
+        } else {
+            sauceData = req.body;                    // Cas sans image
+        }
+
+        const sauceInDb = await Sauce.findById(id);
+        if (sauceInDb == null) {
+            res.status(404).send("Sauce non trouvée");
+            return;
+        }
+
+        const userIdInDb = sauceInDb.userId;
+        const userIdInToken = req.tokenPayload.userId;
+        if (userIdInDb !== userIdInToken) {
+            res.status(403).send("Action non autorisée");
+            return;
+        }
+
+        const newSauce = {}
+        if (sauceData.name) newSauce.name = sauceData.name;           // ✅ CORRECTION : name au lieu de title
+        if (sauceData.manufacturer) newSauce.manufacturer = sauceData.manufacturer;
+        if (sauceData.description) newSauce.description = sauceData.description;
+        if (sauceData.mainPepper) newSauce.mainPepper = sauceData.mainPepper;
+        if (sauceData.heat !== undefined) newSauce.heat = sauceData.heat;  // ✅ Ajout du heat
+        if (req.file != null) newSauce.imageUrl = req.file.filename;
+
+        await Sauce.findByIdAndUpdate(id, newSauce);
+        res.send("Sauce mise à jour avec succès");
+
+    } catch (error) {
+        console.error("Erreur putSauce:", error);
+        res.status(500).send("Erreur serveur: " + error.message);
     }
-    const userIdInDb = sauceInDb.userId;
-    const userIdInToken = req.tokenPayload.userId;
-    if (userIdInDb !== userIdInToken) {
-        res.status(403).send("Action non autorisée : vous ne pouvez pas supprimer la sauce d'un autre utilisateur");
-        return;
-    }
-
-    const newSauce = {}
-    if (sauce.title) newSauce.title = sauce.title;
-    if (sauce.manufacturer) newSauce.manufacturer = sauce.manufacturer;
-    if (sauce.description) newSauce.description = sauce.description;
-    if (sauce.mainPepper) newSauce.mainPepper = sauce.mainPepper;
-    if (req.file != null) newSauce.imageUrl = req.file.filename;
-
-    await Sauce.findByIdAndUpdate(id, newSauce);
-    res.send("Sauce mise à jour avec succès");
 }
 
 async function deleteSauce(req, res) {
