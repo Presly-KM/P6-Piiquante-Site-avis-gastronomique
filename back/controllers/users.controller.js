@@ -3,6 +3,9 @@ const bcrypt = require("bcrypt");                     // Importation de la bibli
 const express = require("express");
 const jwt = require("jsonwebtoken");                 // Importation de la bibliothèque jsonwebtoken pour la gestion des tokens JWT.
 
+const usersRouter = express.Router();
+usersRouter.post("/signup", signUp);
+usersRouter.post("/login", login);
 
 async function signUp(req, res) {
     const email = req.body.email;                     // On extrait l'email du corps de la requête.
@@ -75,10 +78,6 @@ function isPasswordCorrect(password, hash) {                    // Ici, on compa
     return bcrypt.compareSync(password, hash);
 }
 
-const usersRouter = express.Router();
-
-usersRouter.post("/signup", signUp);
-usersRouter.post("/login", login);
 
 
 module.exports = { usersRouter };
