@@ -1,3 +1,4 @@
+require('dotenv').config();                           // Charger les variables d'environnement depuis le fichier .env
 const { app } = require('./config/app');        // Importation de l'application Express depuis le fichier 'app.js'
 const { usersRouter } = require("./controllers/users.controller");
 const { saucesRouter } = require("./controllers/sauces.controller");
