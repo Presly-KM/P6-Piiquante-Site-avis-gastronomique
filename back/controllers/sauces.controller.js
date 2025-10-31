@@ -16,7 +16,7 @@ async function likeSauce(req, res) {
     try {
         // 1. RÉCUPÉRATION DES DONNÉES
         const id = req.params.id;
-        const { like, userId } = req.body;
+        const { like, userId } = req.body;                     // Récupération de la valeur 'like' et 'userId' depuis le corps de la requête. ex: { like: 1, userId: "user123" }. Avec la déstructuration, on extrait directement les propriétés 'like' et 'userId' de req.body.
         const userIdFromToken = req.tokenPayload.userId;
 
         console.log("🔍 Like request - Sauce:", id, "Like:", like, "User from body:", userId, "User from token:", userIdFromToken);
@@ -135,7 +135,7 @@ async function putSauce(req, res) {
         const userIdInDb = sauceInDb.userId;
         const userIdInToken = req.tokenPayload.userId;
         if (userIdInDb !== userIdInToken) {
-            res.status(403).send("Action non autorisée");
+            res.status(403).send("Action non autorisée : Vous ne pouvez pas modifier la sauce d'un autre utilisateur");
             return;
         }
 
@@ -198,12 +198,17 @@ async function postSauces(req, res) {
 }
 
 async function getSauces(req, res) {
-    const sauces = await Sauce.find();
-    console.log("sauces:", sauces);
-    sauces.forEach((sauce) => {
-        sauce.imageUrl = getAbsoluteImagePath(sauce.imageUrl);  // Construction de l'URL complète de l'image pour chaque sauce en utilisant le nom du fichier stocké dans la base de données.
-    });
-    res.send(sauces);
+    try {
+        const sauces = await Sauce.find();
+        console.log("sauces:", sauces);
+        sauces.forEach((sauce) => {
+            sauce.imageUrl = getAbsoluteImagePath(sauce.imageUrl);  // Construction de l'URL complète de l'image pour chaque sauce en utilisant le nom du fichier stocké dans la base de données.
+        });
+        res.send(sauces);
+    } catch (e) {
+        console.error(e);
+        res.status(500).send("Erreur serveur lors de la récupération des sauces: " + e.message);
+    }
 }
 
 function getAbsoluteImagePath(fileName) {
@@ -225,7 +230,7 @@ function checkToken(req, res, next) {                                      // Mi
             res.status(401).send("Non autorisé : token invalide");
             return;
         }
-        req.tokenPayload = tokenPayload
+        req.tokenPayload = tokenPayload;                                      // Pour que les fonction d'aprés puissent y accéder. En effet, les fonctions comme putSauce, deleteSauce et likeSauce ont besoin de savoir quel utilisateur fait la requête afin de vérifier qu'il a le droit de modifier ou supprimer la sauce.  
         next(); // Passe au middleware ou à la route suivante
     } catch (e) {
         console.error(e);
