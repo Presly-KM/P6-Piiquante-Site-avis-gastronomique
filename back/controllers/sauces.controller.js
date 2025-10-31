@@ -207,7 +207,7 @@ async function getSauces(req, res) {
 }
 
 function getAbsoluteImagePath(fileName) {
-    return process.env.IMAGES_PUBLIC_URL + "/" + process.env.IMAGES_FOLDER + "/" + fileName;
+    return process.env.PUBLIC_URL + "/" + process.env.IMAGES_PUBLIC_URL + "/" + fileName;
 }
 
 function checkToken(req, res, next) {                                      // Middleware pour vérifier la validité du token JWT.
