@@ -2,7 +2,6 @@ require('dotenv').config();                           // Charger les variables d
 const { app } = require('./config/app');        // Importation de l'application Express depuis le fichier 'app.js'
 const { usersRouter } = require("./controllers/users.controller");
 const { saucesRouter } = require("./controllers/sauces.controller");
-require('./db/mongo.js');                          // Connexion à la base de données MongoDB
 
 const PORT = process.env.PORT || 3000;
 
