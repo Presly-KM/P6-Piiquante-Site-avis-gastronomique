@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-require("./../db/mongo");                  // Connexion à la base de données MongoDB
+require("./../db/mongo.js");                  // Connexion à la base de données MongoDB
 
 app.use(cors());
 app.use(express.json());      // Middleware pour parser le corps des requêtes en JSON
