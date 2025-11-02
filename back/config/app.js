@@ -1,4 +1,4 @@
-const express = require('express');                                                       // Importation d'Express pour créer l'application web
+const express = require('express');                                                       // Importation d'Express pour créer l'application web. Express est un framework web pour Node.js qui facilite la gestion des requêtes HTTP, le routage, les middlewares, etc.
 const cors = require('cors');                                                             // Importation de CORS pour gérer les requêtes cross-origin. C'est à dire des requêtes provenant d'un domaine différent de celui du serveur. Ainsi, on peut autoriser ou restreindre l'accès aux ressources du serveur en fonction de l'origine des requêtes.
 const app = express();
 require("./../db/mongo.js");                                                              // Connexion à la base de données MongoDB
