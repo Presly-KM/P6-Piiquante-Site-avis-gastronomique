@@ -22,15 +22,15 @@ async function likeSauce(req, res) {
         console.log("🔍 Like request - Sauce:", id, "Like:", like, "User from body:", userId, "User from token:", userIdFromToken);
 
         // 2. VALIDATION DES DONNÉES
-        if (!id) {
+        if (!id) {                                             // Vérification que l'ID de la sauce est présent dans les paramètres de la requête. "!" veut dire "si id n'existe pas"
             return res.status(400).json({ error: "ID de sauce manquant" });
         }
 
-        if (![1, 0, -1].includes(like)) {
+        if (![1, 0, -1].includes(like)) {                      // Vérification que la valeur 'like' est valide (1, 0 ou -1). On utilise includes pour vérifier si la valeur de 'like' est dans le tableau [1, 0, -1].
             return res.status(400).json({ error: "Valeur 'like' invalide. Doit être 1, 0 ou -1" });
         }
 
-        if (!userId) {
+        if (!userId) {                                         // Vérification que l'ID utilisateur est présent dans le corps de la requête.
             return res.status(400).json({ error: "UserId manquant dans le body" });
         }
 
@@ -52,7 +52,7 @@ async function likeSauce(req, res) {
         let message = "";
 
         // ÉTAT ACTUEL
-        const wasLiked = sauce.usersLiked.includes(userId);
+        const wasLiked = sauce.usersLiked.includes(userId);                            // Vérification si l'utilisateur a déjà liké la sauce. En effet le ".includes(userId)" vérifie si userId (l'utilisateur actuel qui vient de voter) est déjà dans le tableau usersLiked
         const wasDisliked = sauce.usersDisliked.includes(userId);
 
         // RETIRER LES VOTES EXISTANTS (pour like = 0 ou changement de vote)
@@ -69,7 +69,7 @@ async function likeSauce(req, res) {
 
         // APPLIQUER LE NOUVEAU VOTE
         if (like === 1) {
-            if (!wasLiked) { // Éviter les doublons si déjà liké
+            if (!wasLiked) { // Éviter les doublons si déjà liké                      // !wasLiked signifie "si pas déjà liké" 
                 sauce.usersLiked.push(userId);
                 sauce.likes += 1;
                 message = "Sauce likée avec succès";
