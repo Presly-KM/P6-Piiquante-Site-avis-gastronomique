@@ -1,8 +1,23 @@
 const mongoose = require("mongoose");
-const UserSchema = new mongoose.Schema({                // Définition du schéma Mongoose pour les utilisateurs. Cela va structurer les documents de la collection "users" dans MongoDB.
-    email: String,
-    password: String
+
+const UserSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true,
+        unique: true     // ✅ EMPÊCHE LES DOUBLONS
+    },
+    password: {
+        type: String,
+        required: true   // ✅ OBLIGATOIRE
+    }
 });
+
+// ✅ Validation supplémentaire pour les emails
+UserSchema.path('email').validate(function (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}, 'Email invalide');
+
 
 const User = mongoose.model("User", UserSchema);
 
