@@ -1,4 +1,4 @@
-const multer = require('multer');                  // Importation du middleware multer pour destiné à gérer fichiers entrants (images)  
+const multer = require('multer');                  // Importation du middleware multer pour destiné à gérer les fichiers entrants (images)  
 
 const storage = multer.diskStorage({                // Configuration du stockage des fichiers uploadés (cf modele sur le site de multer)
     destination: function (req, file, cb) {
