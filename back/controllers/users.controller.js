@@ -7,32 +7,28 @@ const usersRouter = express.Router();                 // Création d'un routeur 
 usersRouter.post("/signup", signUp);
 usersRouter.post("/login", login);
 
-async function signUp(req, res) {
-    const email = req.body.email;                                              // On extrait l'email du corps de la requête.
-    const password = req.body.password;                                        // On extrait le mot de passe du corps de la requête.
-
+async function signUp(req, res) {                                              // Fonction asynchrone pour gérer l'inscription des utilisateurs.
     try {
-        const userInDb = await User.findOne({
-            email: email
+        const userInDb = await User.findOne({                                  // Ici, on cherche dans la base de données un utilisateur avec l'email que l'on a reçu dans le corps de la requête (req.body.email) c'est à dire l'email qui a été tapé dans le formulaire d'inscription.
+            email: req.body.email
         });
         if (userInDb != null) {
             res.status(400).send("Utilisateur déjà existant avec cet email."); // Si un utilisateur avec le même email existe déjà, on renvoie une erreur 400 (Bad Request) au client.
             return;                                                            // On arrête l'exécution de la fonction.
         } else {
 
-            const user = {                                                     // On crée un nouvel objet "utilisateur" avec l'email et le mot de passe fournis.
-                email: email,
-                password: hashPassword(password)
-            };
-
-            await User.create(user);                                           // On crée un nouvel utilisateur dans la base de données MongoDB. 
-            res.status(201).json({                                             // On renvoie une réponse 201 (Created) au client avec un message de succès.
-                message: "Inscription réussie !"
+            await User.create({                                                // Si l'email n'existe pas encore dans la base de données, on crée un nouvel utilisateur avec l'email et le mot de passe hashé.
+                email: req.body.email,
+                password: hashPassword(req.body.password)
             });
+
+            res.status(201).json({ message: "Compte créé" });
         }
-    } catch (e) {                                                              // Si une erreur survient lors de la création de l'utilisateur dans la base de données, on la capture.
-        console.error(e);
-        res.status(500).send("Erreur serveur lors de la création de l'utilisateur.");
+    } catch (error) {
+        if (error.code === 11000) {                                            // Code d'erreur MongoDB pour les doublons (duplicate key error)
+            return res.status(400).json({ error: "Email déjà utilisé" });
+        }
+        res.status(500).json({ error: "Erreur serveur" });
     }
 }
 
