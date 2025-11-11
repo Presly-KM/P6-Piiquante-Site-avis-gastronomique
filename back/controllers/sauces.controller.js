@@ -139,15 +139,15 @@ async function putSauce(req, res) {                                             
             return;
         }
 
-        const newSauce = {}
-        if (sauceData.name) newSauce.name = sauceData.name;                               // ✅ CORRECTION : name au lieu de title
+        const newSauce = {};                                                               // Création d'un objet vide pour stocker les nouvelles données de la sauce.
+        if (sauceData.name) newSauce.name = sauceData.name;                                // Mise à jour uniquement des champs présents dans la requête.
         if (sauceData.manufacturer) newSauce.manufacturer = sauceData.manufacturer;
         if (sauceData.description) newSauce.description = sauceData.description;
         if (sauceData.mainPepper) newSauce.mainPepper = sauceData.mainPepper;
-        if (sauceData.heat !== undefined) newSauce.heat = sauceData.heat;                 // ✅ Ajout du heat
+        if (sauceData.heat !== undefined) newSauce.heat = sauceData.heat;
         if (req.file != null) newSauce.imageUrl = req.file.filename;
 
-        await Sauce.findByIdAndUpdate(id, newSauce);                                      // Mise à jour de la sauce dans la base de données avec les nouvelles données.
+        await Sauce.findByIdAndUpdate(id, newSauce);                                       // Mise à jour de la sauce dans la base de données avec les nouvelles données.
         res.send("Sauce mise à jour avec succès");
 
     } catch (error) {
