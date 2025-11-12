@@ -64,7 +64,7 @@ function generateToken(idInDb) {                                      // Ici, on
     const payload = {
         userId: idInDb
     };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {         // Ici, on signe le token avec une clé secrète "SYLABUS" (à remplacer par une clé plus sécurisée en production) et on définit une durée de validité pour le token.
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {         // Ici, on signe le token avec une clé secrète et on définit une durée de validité pour le token.
         expiresIn: "1d"
     });
     return token;
