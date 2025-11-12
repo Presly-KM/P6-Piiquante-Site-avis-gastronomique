@@ -13,7 +13,7 @@ async function signUp(req, res) {                                              /
             email: req.body.email
         });
         if (userInDb != null) {
-            res.status(400).send("Utilisateur déjà existant avec cet email."); // Si un utilisateur avec le même email existe déjà, on renvoie une erreur 400 (Bad Request) au client.
+            res.status(400).send("Utilisateur déjà existant avec cet email."); // Si un utilisateur avec le même email existe déjà, on renvoie une erreur 400 (Bad Request) au client. Gestion 1 = Évite 99% des cas (meilleure expérience utilisateur) (cf gestion 2 ci-dessous)
             return;                                                            // On arrête l'exécution de la fonction.
         } else {
 
@@ -26,7 +26,7 @@ async function signUp(req, res) {                                              /
         }
     } catch (error) {
         if (error.code === 11000) {                                            // Code d'erreur MongoDB pour les doublons (duplicate key error)
-            return res.status(400).json({ error: "Email déjà utilisé" });
+            return res.status(400).json({ error: "Utilisateur déjà existant avec cet email." });      // Gestion 2 = En cas de tentative de contournement de la gestion 1 (cf ci-dessus) --> Gestion 2 = Gère les 1% restants (race conditions)
         }
         res.status(500).json({ error: "Erreur serveur" });
     }
