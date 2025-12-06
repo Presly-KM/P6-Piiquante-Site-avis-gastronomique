@@ -211,8 +211,11 @@ async function getSauces(req, res) {
     }
 }
 
-function getAbsoluteImagePath(fileName) {                                                 // Construction de l'URL absolue pour une image donnée en fonction du nom de fichier.
-    return process.env.PUBLIC_URL + "/" + process.env.IMAGES_PUBLIC_URL + "/" + fileName;
+function getAbsoluteImagePath(fileName) {
+    // Supprimer le PUBLIC_URL pour utiliser juste le chemin relatif
+    return "/" + process.env.IMAGES_PUBLIC_URL + "/" + fileName;
+    // ou si vous voulez garder le domaine complet :
+    // return process.env.PUBLIC_URL + "/api/" + process.env.IMAGES_PUBLIC_URL + "/" + fileName;
 }
 
 function checkToken(req, res, next) {                                                     // Middleware pour vérifier la validité du token JWT.
