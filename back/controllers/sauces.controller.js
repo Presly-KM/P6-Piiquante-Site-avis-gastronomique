@@ -211,7 +211,12 @@ async function getSauces(req, res) {
     }
 }
 
-function getAbsoluteImagePath(fileName) {                                                 // Construction de l'URL absolue pour une image donnée en fonction du nom de fichier.
+function getAbsoluteImagePath(fileName) {
+    // Si l'URL commence déjà par http:// ou https://, c'est une URL complète
+    if (fileName.startsWith('http://') || fileName.startsWith('https://')) {
+        return fileName; // Retourner l'URL telle quelle
+    }
+    // Sinon, c'est un nom de fichier local
     return process.env.PUBLIC_URL + "/" + process.env.IMAGES_PUBLIC_URL + "/" + fileName;
 }
 
