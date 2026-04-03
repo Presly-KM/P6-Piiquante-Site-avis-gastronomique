@@ -1,5 +1,5 @@
 require('dotenv').config();                                                         // Charger les variables d'environnement depuis le fichier .env
-const { app } = require('./config/app');                                            // Importation de l'application Express depuis le fichier 'app.js'
+const { app } = require('./config/app');                                            // Importation de l'application Express depuis le fichier 'app.js'. Ce fichier contient la configuration de l'application, y compris les middlewares, la connexion à la base de données, et les routes statiques. En important 'app', on peut ensuite définir les routes spécifiques de notre application et démarrer le serveur.
 const { usersRouter } = require("./controllers/users.controller");                  // Importation du routeur des utilisateurs
 const { saucesRouter } = require("./controllers/sauces.controller");                // Importation du routeur des sauces 
 
